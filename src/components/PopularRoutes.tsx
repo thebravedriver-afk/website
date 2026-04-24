@@ -13,7 +13,6 @@ const routes = [
     description: "New AP Capital",
     distance: "30 km",
     duration: "45 min",
-    from: "₹400",
     highlight: true,
   },
   {
@@ -22,7 +21,6 @@ const routes = [
     description: "Regional Hub",
     distance: "35 km",
     duration: "50 min",
-    from: "₹450",
     highlight: false,
   },
   {
@@ -31,7 +29,6 @@ const routes = [
     description: "Business Capital",
     distance: "275 km",
     duration: "4.5 hrs",
-    from: "₹2,800",
     highlight: true,
   },
   {
@@ -40,7 +37,6 @@ const routes = [
     description: "Tirumala Temple",
     distance: "350 km",
     duration: "6 hrs",
-    from: "₹3,500",
     highlight: false,
   },
   {
@@ -49,7 +45,6 @@ const routes = [
     description: "Cultural Capital",
     distance: "100 km",
     duration: "2 hrs",
-    from: "₹1,200",
     highlight: false,
   },
   {
@@ -58,8 +53,55 @@ const routes = [
     description: "City of Destiny",
     distance: "350 km",
     duration: "6 hrs",
-    from: "₹3,500",
     highlight: true,
+  },
+  {
+    destination: "చెన్నై",
+    destinationEn: "Chennai",
+    description: "Gateway to South India",
+    distance: "450 km",
+    duration: "8.5 hrs",
+    highlight: false,
+  },
+  {
+    destination: "బెంగళూరు",
+    destinationEn: "Bangalore",
+    description: "Garden City & Tech Hub",
+    distance: "650 km",
+    duration: "12 hrs",
+    highlight: false,
+  },
+  {
+    destination: "నెల్లూరు",
+    destinationEn: "Nellore",
+    description: "City of Prawns",
+    distance: "280 km",
+    duration: "5 hrs",
+    highlight: false,
+  },
+  {
+    destination: "కర్నూలు",
+    destinationEn: "Kurnool",
+    description: "Gateway to Rayalaseema",
+    distance: "340 km",
+    duration: "6.5 hrs",
+    highlight: false,
+  },
+  {
+    destination: "కాకినాడ",
+    destinationEn: "Kakinada",
+    description: "Fertilizer City",
+    distance: "200 km",
+    duration: "4.5 hrs",
+    highlight: false,
+  },
+  {
+    destination: "ఏలూరు",
+    destinationEn: "Eluru",
+    description: "The Paddy Fields",
+    distance: "65 km",
+    duration: "1.5 hrs",
+    highlight: false,
   },
 ];
 
@@ -169,9 +211,8 @@ export default function PopularRoutes() {
                   <span>·</span>
                   <span>{route.duration}</span>
                 </div>
-                <div className="text-right">
-                  <p className="text-[10px] text-white/40 uppercase tracking-wider">From</p>
-                  <p className="text-secondary font-black text-lg leading-none">{route.from}</p>
+                <div className="flex items-center justify-center h-8 w-8 rounded-full bg-white/5 border border-white/10 group-hover:bg-secondary group-hover:border-secondary transition-colors duration-300">
+                  <ArrowRight className="h-4 w-4 text-white group-hover:text-secondary-foreground transition-colors duration-300" />
                 </div>
               </div>
             </motion.div>
@@ -185,10 +226,6 @@ export default function PopularRoutes() {
           viewport={{ once: true }}
           className="text-center"
         >
-          <p className="text-white/50 text-sm mb-5">
-            * Prices are indicative. Final fare depends on vehicle type, stops, and route.
-            Toll, state, and parking charges extra.
-          </p>
           <Link
             href="/contact"
             className={cn(
