@@ -1,57 +1,145 @@
 "use client";
 
-import { motion } from "framer-motion";
-import { Badge } from "@/components/ui/badge";
-import { CheckCircle2, ArrowRight } from "lucide-react";
-import { buttonVariants } from "@/components/ui/button";
-import Link from "next/link";
+import { motion, AnimatePresence } from "framer-motion";
+import { ArrowRight, CheckCircle2, Send, ChevronLeft, Car, MapPin, Calendar, Clock, Phone, Mail, User } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { useState } from "react";
 import Image from "next/image";
-import { cn } from "@/lib/utils";
 
-const tariffs = [
-  {
-    category: "ALL SEDAN",
-    "4hrs_40km": "1300/-",
-    "8hrs_80km": "2000/-",
-    "12hrs_rent": "Rs. 1400/-",
-    extra_km: "12/-",
-    extra_hr: "150/-",
-    driver_beta: "Rs. 500/-",
-    image: "/sedan.png",
-  },
-  {
-    category: "NEW ERTIGA",
-    "4hrs_40km": "1800/-",
-    "8hrs_80km": "2800/-",
-    "12hrs_rent": "Rs. 2000/-",
-    extra_km: "15/-",
-    extra_hr: "200/-",
-    driver_beta: "Rs. 400/-",
-    image: "/Ertiga.png",
-  },
-  {
-    category: "INNOVA",
-    "4hrs_40km": "2000/-",
-    "8hrs_80km": "3000/-",
-    "12hrs_rent": "Rs. 2000/-",
-    extra_km: "16/-",
-    extra_hr: "250/-",
-    driver_beta: "Rs. 500/-",
-    image: "/Innova.png",
-  },
-  {
-    category: "INNOVA CRYSTA",
-    "4hrs_40km": "2800/-",
-    "8hrs_80km": "4000/-",
-    "12hrs_rent": "Rs. 2500/-",
-    extra_km: "16/-",
-    extra_hr: "300/-",
-    driver_beta: "Rs. 500/-",
-    image: "/Innova_crystal.png",
-  },
+const vehicleCategories = [
+  { value: "All Sedan", label: "All Sedan", seats: 4 },
+  { value: "New Ertiga", label: "New Ertiga", seats: 6 },
+  { value: "Innova", label: "Innova", seats: 7 },
+  { value: "Innova Crysta", label: "Innova Crysta", seats: 7 },
+];
+
+const tripTypes = [
+  { value: "local", label: "Local City Ride" },
+  { value: "outstation", label: "Outstation Trip" },
+  { value: "airport", label: "Airport Transfer" },
+  { value: "wedding", label: "Wedding / Event" },
+  { value: "self-drive", label: "Self-Drive Rental" },
+  { value: "custom", label: "Custom Package" },
 ];
 
 export default function Tariffs() {
+  const [step, setStep] = useState(1);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
+
+  // Step 1: Trip details
+  const [tripDetails, setTripDetails] = useState({
+    vehicleCategory: "",
+    tripType: "",
+    pickupLocation: "",
+    dropLocation: "",
+    travelDate: "",
+    duration: "",
+    passengers: "1",
+  });
+
+  // Step 2: Contact info
+  const [contactInfo, setContactInfo] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    notes: "",
+  });
+
+  const updateTripDetail = (key: string, value: string) => {
+    setTripDetails((prev) => ({ ...prev, [key]: value }));
+  };
+
+  const updateContactInfo = (key: string, value: string) => {
+    setContactInfo((prev) => ({ ...prev, [key]: value }));
+  };
+
+  const canProceedToStep2 = () => {
+    return (
+      tripDetails.vehicleCategory &&
+      tripDetails.tripType &&
+      tripDetails.pickupLocation
+    );
+  };
+
+  const canSubmit = () => {
+    return contactInfo.name && contactInfo.phone;
+  };
+
+  const formatMessage = () => {
+    return [
+      `Vehicle: ${tripDetails.vehicleCategory}`,
+      `Trip Type: ${tripTypes.find((t) => t.value === tripDetails.tripType)?.label || tripDetails.tripType}`,
+      `Pickup: ${tripDetails.pickupLocation}`,
+      tripDetails.dropLocation ? `Drop: ${tripDetails.dropLocation}` : null,
+      tripDetails.travelDate ? `Travel Date: ${tripDetails.travelDate}` : null,
+      tripDetails.duration ? `Duration: ${tripDetails.duration}` : null,
+      `Passengers: ${tripDetails.passengers}`,
+      contactInfo.notes ? `\nNotes: ${contactInfo.notes}` : null,
+    ]
+      .filter(Boolean)
+      .join("\n");
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+
+    const googleFormUrl =
+      "https://docs.google.com/forms/d/e/1FAIpQLSeGm187zwT4O5FyWDRTTLW6Nc2Ar3nCmAgwDEY8Wwn976AY9Q/formResponse";
+
+    const data = new URLSearchParams();
+    data.append("entry.735563514", contactInfo.name);
+    data.append("entry.1529549061", contactInfo.email);
+    data.append("entry.1012230411", contactInfo.phone);
+    data.append("entry.1643212355", tripDetails.vehicleCategory);
+    data.append("entry.1506451490", formatMessage());
+
+    try {
+      await fetch(googleFormUrl, {
+        method: "POST",
+        mode: "no-cors",
+        body: data,
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+      });
+      setIsSuccess(true);
+    } catch (error) {
+      console.error("Submission error:", error);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const resetForm = () => {
+    setStep(1);
+    setIsSuccess(false);
+    setTripDetails({
+      vehicleCategory: "",
+      tripType: "",
+      pickupLocation: "",
+      dropLocation: "",
+      travelDate: "",
+      duration: "",
+      passengers: "1",
+    });
+    setContactInfo({
+      name: "",
+      email: "",
+      phone: "",
+      notes: "",
+    });
+  };
+
+  const containerVariants = {
+    hidden: { opacity: 0, x: 40 },
+    visible: { opacity: 1, x: 0, transition: { duration: 0.4 } },
+    exit: { opacity: 0, x: -40, transition: { duration: 0.3 } },
+  };
+
   return (
     <section id="tariffs" className="py-24 bg-muted/20 relative overflow-hidden">
       <div className="absolute top-0 left-0 w-full h-64 bg-black pointer-events-none" />
@@ -64,7 +152,7 @@ export default function Tariffs() {
             viewport={{ once: true }}
             className="text-secondary font-black tracking-[0.3em] uppercase text-sm mb-4 block"
           >
-            Premium Fleet
+            Request a Quote
           </motion.span>
           <motion.h2
             initial={{ opacity: 0, y: 20 }}
@@ -72,7 +160,7 @@ export default function Tariffs() {
             viewport={{ once: true }}
             className="text-5xl md:text-7xl font-black mb-8 tracking-tight text-white"
           >
-            Our <span className="text-secondary">Vehicle</span> Tariffs
+            Get <span className="text-secondary">Your</span> Fare Estimate
           </motion.h2>
           <motion.p
             initial={{ opacity: 0, y: 20 }}
@@ -81,109 +169,449 @@ export default function Tariffs() {
             transition={{ delay: 0.2 }}
             className="text-white/60 text-xl font-medium"
           >
-            Transparent pricing for every group size and journey type.
-            Choose your preferred vehicle category below.
+            Tell us about your trip and we{"'"}ll get back to you with the best prices.
           </motion.p>
         </div>
 
-        <div className="grid lg:grid-cols-2 gap-10">
-          {tariffs.map((tariff, i) => (
-            <motion.div
-              key={i}
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: i * 0.1, duration: 0.6 }}
-              className="bg-white rounded-[3rem] shadow-[0_30px_100px_rgba(0,0,0,0.1)] overflow-hidden border border-black/5 flex flex-col md:flex-row group hover:shadow-[0_40px_120px_rgba(0,0,0,0.18)] transition-all duration-700"
-            >
-              {/* Left: Vehicle Photo */}
-              <div className="md:w-2/5 bg-primary relative overflow-hidden flex flex-col items-center justify-end min-h-[220px]">
-                {/* subtle gradient overlay */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent z-10" />
-                <Image
-                  src={tariff.image}
-                  alt={tariff.category}
-                  fill
-                  className="object-cover object-center group-hover:scale-105 transition-transform duration-700"
-                  sizes="(max-width: 768px) 100vw, 40vw"
-                />
-                {/* Category + badge sit above the photo */}
-                <div className="relative z-20 w-full p-6 flex flex-col items-center gap-2">
-                  <h3 className="text-xl font-black text-white text-center tracking-tight drop-shadow">
-                    {tariff.category}
-                  </h3>
-                  <Badge className="bg-secondary text-secondary-foreground font-black px-4 py-1 text-sm">
-                    {tariff["12hrs_rent"]}
-                  </Badge>
-                </div>
+        {/* Steps Indicator */}
+        <div className="max-w-2xl mx-auto mb-12">
+          <div className="flex items-center justify-center gap-4">
+            <div className="flex items-center gap-2">
+              <div
+                className={`h-10 w-10 rounded-full flex items-center justify-center text-sm font-black transition-all duration-500 ${
+                  step >= 1 ? "bg-secondary text-black" : "bg-white/20 text-white/40"
+                }`}
+              >
+                1
               </div>
-
-              {/* Right: Pricing Details */}
-              <div className="md:w-3/5 p-10 flex flex-col justify-between">
-                <div>
-                  <div className="grid grid-cols-2 gap-6 mb-8">
-                    <div className="space-y-1">
-                      <p className="text-[10px] uppercase tracking-widest text-muted-foreground font-black">4 HRS / 40 KM</p>
-                      <p className="text-2xl font-black text-primary">₹{tariff["4hrs_40km"]}</p>
-                    </div>
-                    <div className="space-y-1">
-                      <p className="text-[10px] uppercase tracking-widest text-muted-foreground font-black">8 HRS / 80 KM</p>
-                      <p className="text-2xl font-black text-primary">₹{tariff["8hrs_80km"]}</p>
-                    </div>
-                  </div>
-
-                  <div className="space-y-3 mb-8">
-                    <div className="flex items-center gap-3 text-sm font-bold text-foreground">
-                      <CheckCircle2 className="h-4 w-4 text-secondary shrink-0" />
-                      Extra KM
-                      <span className="text-primary ml-auto">₹{tariff.extra_km}</span>
-                    </div>
-                    <div className="flex items-center gap-3 text-sm font-bold text-foreground">
-                      <CheckCircle2 className="h-4 w-4 text-secondary shrink-0" />
-                      Extra Hour
-                      <span className="text-primary ml-auto">₹{tariff.extra_hr}</span>
-                    </div>
-                    <div className="flex items-center gap-3 text-sm font-bold text-foreground">
-                      <CheckCircle2 className="h-4 w-4 text-secondary shrink-0" />
-                      Driver Beta
-                      <span className="text-primary ml-auto">{tariff.driver_beta}</span>
-                    </div>
-                  </div>
-                </div>
-
-                <Link
-                  href="/contact"
-                  className={cn(
-                    buttonVariants({ size: "lg" }),
-                    "w-full h-14 rounded-2xl text-base font-black group/btn flex items-center justify-center"
-                  )}
-                >
-                  Book This Fleet
-                  <ArrowRight className="ml-2 h-5 w-5 group-hover/btn:translate-x-1 transition-transform" />
-                </Link>
+              <span
+                className={`text-sm font-bold hidden sm:inline transition-colors ${
+                  step >= 1 ? "text-white" : "text-white/40"
+                }`}
+              >
+                Trip Details
+              </span>
+            </div>
+            <div
+              className={`h-0.5 w-16 transition-colors duration-500 ${
+                step >= 2 ? "bg-secondary" : "bg-white/20"
+              }`}
+            />
+            <div className="flex items-center gap-2">
+              <div
+                className={`h-10 w-10 rounded-full flex items-center justify-center text-sm font-black transition-all duration-500 ${
+                  step >= 2 ? "bg-secondary text-black" : "bg-white/20 text-white/40"
+                }`}
+              >
+                2
               </div>
-            </motion.div>
-          ))}
+              <span
+                className={`text-sm font-bold hidden sm:inline transition-colors ${
+                  step >= 2 ? "text-white" : "text-white/40"
+                }`}
+              >
+                Contact Info
+              </span>
+            </div>
+            <div
+              className={`h-0.5 w-16 transition-colors duration-500 ${
+                step >= 3 ? "bg-secondary" : "bg-white/20"
+              }`}
+            />
+            <div className="flex items-center gap-2">
+              <div
+                className={`h-10 w-10 rounded-full flex items-center justify-center text-sm font-black transition-all duration-500 ${
+                  step >= 3 ? "bg-secondary text-black" : "bg-white/20 text-white/40"
+                }`}
+              >
+                ✓
+              </div>
+              <span
+                className={`text-sm font-bold hidden sm:inline transition-colors ${
+                  step >= 3 ? "text-white" : "text-white/40"
+                }`}
+              >
+                Done
+              </span>
+            </div>
+          </div>
         </div>
 
-        {/* Custom package banner */}
+        {/* Form Card */}
+        <div className="max-w-2xl mx-auto">
+          <div className="bg-white rounded-[3rem] shadow-[0_30px_100px_rgba(0,0,0,0.1)] overflow-hidden border border-black/5">
+            <AnimatePresence mode="wait">
+              {/* ====== STEP 3: SUCCESS ====== */}
+              {isSuccess ? (
+                <motion.div
+                  key="success"
+                  variants={containerVariants}
+                  initial="hidden"
+                  animate="visible"
+                  exit="exit"
+                  className="p-12 md:p-16 flex flex-col items-center text-center"
+                >
+                  <div className="h-24 w-24 rounded-full bg-secondary/10 flex items-center justify-center mb-8">
+                    <Send className="h-12 w-12 text-secondary" />
+                  </div>
+                  <h3 className="text-3xl md:text-4xl font-black text-primary mb-4">
+                    Inquiry Submitted! 🎉
+                  </h3>
+                  <div className="h-1 w-16 bg-secondary rounded-full mb-6" />
+                  <p className="text-lg text-muted-foreground max-w-md leading-relaxed mb-4">
+                    Thank you for reaching out to{" "}
+                    <span className="font-bold text-primary">Brave Driver Tours &amp; Travels</span>.
+                  </p>
+                  <p className="text-xl font-bold text-primary mb-8">
+                    We will be back with prices shortly!
+                  </p>
+                  <div className="flex flex-col sm:flex-row gap-4 w-full max-w-sm">
+                    <Button
+                      onClick={resetForm}
+                      className="flex-1 h-14 rounded-2xl text-base font-black"
+                    >
+                      Submit Another Request
+                    </Button>
+                    <Button
+                      variant="outline"
+                      onClick={() => (window.location.href = "/")}
+                      className="flex-1 h-14 rounded-2xl text-base font-black"
+                    >
+                      Back to Home
+                    </Button>
+                  </div>
+                  <div className="mt-10 pt-8 border-t border-border w-full max-w-sm">
+                    <p className="text-sm text-muted-foreground mb-3 font-medium">
+                      Meanwhile, reach us directly:
+                    </p>
+                    <div className="flex items-center justify-center gap-2 text-sm font-bold text-primary">
+                      <Phone className="h-4 w-4" />
+                      <a href="tel:7995581545">7995581545</a>
+                      <span className="text-muted-foreground font-normal">/</span>
+                      <a href="tel:7416910367">7416910367</a>
+                    </div>
+                  </div>
+                </motion.div>
+              ) : (
+                <>
+                  {/* ====== STEP 1: TRIP DETAILS ====== */}
+                  {step === 1 && (
+                    <motion.div
+                      key="step1"
+                      variants={containerVariants}
+                      initial="hidden"
+                      animate="visible"
+                      exit="exit"
+                      className="p-10 md:p-14"
+                    >
+                      <div className="flex items-center gap-4 mb-8">
+                        <div className="h-12 w-12 rounded-full bg-primary/5 flex items-center justify-center shrink-0">
+                          <Car className="h-6 w-6 text-primary" />
+                        </div>
+                        <div>
+                          <h3 className="text-2xl font-black text-primary">
+                            Tell Us About Your Trip
+                          </h3>
+                          <p className="text-sm text-muted-foreground">
+                            We&apos;ll tailor the best package for you.
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="space-y-6">
+                        {/* Vehicle Category */}
+                        <div className="space-y-3">
+                          <Label className="text-base font-bold">Preferred Vehicle</Label>
+                          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                            {vehicleCategories.map((v) => (
+                              <button
+                                key={v.value}
+                                type="button"
+                                onClick={() => updateTripDetail("vehicleCategory", v.value)}
+                                className={`p-4 rounded-2xl border-2 text-center transition-all duration-200 ${
+                                  tripDetails.vehicleCategory === v.value
+                                    ? "border-secondary bg-secondary/5 shadow-sm"
+                                    : "border-border hover:border-primary/30 bg-muted/20"
+                                }`}
+                              >
+                                <p className="font-extrabold text-sm text-foreground">{v.label}</p>
+                                <p className="text-[10px] text-muted-foreground font-semibold mt-1">
+                                  {v.seats} Seats
+                                </p>
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+
+                        {/* Trip Type */}
+                        <div className="space-y-3">
+                          <Label className="text-base font-bold">Trip Type</Label>
+                          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                            {tripTypes.map((t) => (
+                              <button
+                                key={t.value}
+                                type="button"
+                                onClick={() => updateTripDetail("tripType", t.value)}
+                                className={`p-3 rounded-2xl border-2 text-center transition-all duration-200 ${
+                                  tripDetails.tripType === t.value
+                                    ? "border-secondary bg-secondary/5 shadow-sm"
+                                    : "border-border hover:border-primary/30 bg-muted/20"
+                                }`}
+                              >
+                                <p className="font-bold text-xs text-foreground">{t.label}</p>
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+
+                        {/* Pickup & Drop */}
+                        <div className="grid sm:grid-cols-2 gap-4">
+                          <div className="space-y-2">
+                            <Label htmlFor="pickup" className="text-base font-bold">
+                              <MapPin className="h-4 w-4 inline mr-1 text-primary" />
+                              Pickup Location
+                            </Label>
+                            <Input
+                              id="pickup"
+                              value={tripDetails.pickupLocation}
+                              onChange={(e) => updateTripDetail("pickupLocation", e.target.value)}
+                              placeholder="e.g. Vijayawada"
+                              required
+                              className="bg-muted/20 border-2"
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <Label htmlFor="drop" className="text-base font-bold">
+                              <MapPin className="h-4 w-4 inline mr-1 text-primary" />
+                              Drop Location
+                            </Label>
+                            <Input
+                              id="drop"
+                              value={tripDetails.dropLocation}
+                              onChange={(e) => updateTripDetail("dropLocation", e.target.value)}
+                              placeholder="e.g. Hyderabad (optional)"
+                              className="bg-muted/20 border-2"
+                            />
+                          </div>
+                        </div>
+
+                        {/* Travel Date & Duration */}
+                        <div className="grid sm:grid-cols-2 gap-4">
+                          <div className="space-y-2">
+                            <Label htmlFor="date" className="text-base font-bold">
+                              <Calendar className="h-4 w-4 inline mr-1 text-primary" />
+                              Travel Date
+                            </Label>
+                            <Input
+                              id="date"
+                              type="date"
+                              value={tripDetails.travelDate}
+                              onChange={(e) => updateTripDetail("travelDate", e.target.value)}
+                              className="bg-muted/20 border-2"
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <Label htmlFor="duration" className="text-base font-bold">
+                              <Clock className="h-4 w-4 inline mr-1 text-primary" />
+                              Duration
+                            </Label>
+                            <Input
+                              id="duration"
+                              value={tripDetails.duration}
+                              onChange={(e) => updateTripDetail("duration", e.target.value)}
+                              placeholder="e.g. Full day, 2 days, Weekly"
+                              className="bg-muted/20 border-2"
+                            />
+                          </div>
+                        </div>
+
+                        {/* Passengers */}
+                        <div className="space-y-2 max-w-[160px]">
+                          <Label htmlFor="passengers" className="text-base font-bold">
+                            <User className="h-4 w-4 inline mr-1 text-primary" />
+                            Passengers
+                          </Label>
+                          <Input
+                            id="passengers"
+                            type="number"
+                            min="1"
+                            max="12"
+                            value={tripDetails.passengers}
+                            onChange={(e) => updateTripDetail("passengers", e.target.value)}
+                            className="bg-muted/20 border-2"
+                          />
+                        </div>
+                      </div>
+
+                      {/* Actions */}
+                      <div className="flex justify-end mt-10">
+                        <Button
+                          onClick={() => setStep(2)}
+                          disabled={!canProceedToStep2()}
+                          className="h-14 px-10 rounded-2xl text-base font-black group/btn"
+                        >
+                          Continue
+                          <ArrowRight className="ml-2 h-5 w-5 group-hover/btn:translate-x-1 transition-transform" />
+                        </Button>
+                      </div>
+                    </motion.div>
+                  )}
+
+                  {/* ====== STEP 2: CONTACT INFO ====== */}
+                  {step === 2 && (
+                    <motion.div
+                      key="step2"
+                      variants={containerVariants}
+                      initial="hidden"
+                      animate="visible"
+                      exit="exit"
+                      className="p-10 md:p-14"
+                    >
+                      <div className="flex items-center gap-4 mb-8">
+                        <div className="h-12 w-12 rounded-full bg-primary/5 flex items-center justify-center shrink-0">
+                          <User className="h-6 w-6 text-primary" />
+                        </div>
+                        <div>
+                          <h3 className="text-2xl font-black text-primary">
+                            Your Contact Details
+                          </h3>
+                          <p className="text-sm text-muted-foreground">
+                            We&apos;ll reach out with your personalized fare estimate.
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Summary chip */}
+                      <div className="bg-muted/30 rounded-2xl p-4 mb-8 border border-border">
+                        <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2">
+                          Your Selection
+                        </p>
+                        <div className="flex flex-wrap gap-x-6 gap-y-1 text-sm">
+                          <span className="font-bold text-primary">{tripDetails.vehicleCategory}</span>
+                          <span className="text-muted-foreground">·</span>
+                          <span>{tripTypes.find((t) => t.value === tripDetails.tripType)?.label}</span>
+                          <span className="text-muted-foreground">·</span>
+                          <span>{tripDetails.pickupLocation}{tripDetails.dropLocation ? ` → ${tripDetails.dropLocation}` : ""}</span>
+                        </div>
+                      </div>
+
+                      <form onSubmit={handleSubmit} className="space-y-5">
+                        <div className="grid sm:grid-cols-2 gap-5">
+                          <div className="space-y-2">
+                            <Label htmlFor="name" className="text-base font-bold">
+                              <User className="h-4 w-4 inline mr-1 text-primary" />
+                              Full Name
+                            </Label>
+                            <Input
+                              id="name"
+                              value={contactInfo.name}
+                              onChange={(e) => updateContactInfo("name", e.target.value)}
+                              placeholder="Your name"
+                              required
+                              className="bg-muted/20 border-2"
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <Label htmlFor="email" className="text-base font-bold">
+                              <Mail className="h-4 w-4 inline mr-1 text-primary" />
+                              Email
+                            </Label>
+                            <Input
+                              id="email"
+                              type="email"
+                              value={contactInfo.email}
+                              onChange={(e) => updateContactInfo("email", e.target.value)}
+                              placeholder="email@example.com"
+                              className="bg-muted/20 border-2"
+                            />
+                          </div>
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="phone" className="text-base font-bold">
+                            <Phone className="h-4 w-4 inline mr-1 text-primary" />
+                            Phone Number
+                          </Label>
+                          <Input
+                            id="phone"
+                            type="tel"
+                            value={contactInfo.phone}
+                            onChange={(e) => updateContactInfo("phone", e.target.value)}
+                            placeholder="+91 00000 00000"
+                            required
+                            className="bg-muted/20 border-2"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="notes" className="text-base font-bold">
+                            Additional Notes
+                          </Label>
+                          <textarea
+                            id="notes"
+                            rows={3}
+                            value={contactInfo.notes}
+                            onChange={(e) => updateContactInfo("notes", e.target.value)}
+                            placeholder="Any special requests or preferences..."
+                            className="flex min-h-[80px] w-full rounded-2xl border-2 border-border bg-muted/20 px-4 py-3 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                          />
+                        </div>
+
+                        {/* Actions */}
+                        <div className="flex flex-col-reverse sm:flex-row gap-4 pt-4">
+                          <Button
+                            type="button"
+                            variant="outline"
+                            onClick={() => setStep(1)}
+                            className="h-14 flex-1 rounded-2xl text-base font-black"
+                          >
+                            <ChevronLeft className="mr-2 h-5 w-5" />
+                            Back
+                          </Button>
+                          <Button
+                            type="submit"
+                            disabled={!canSubmit() || isSubmitting}
+                            className="h-14 flex-[2] rounded-2xl text-base font-black group/btn"
+                          >
+                            {isSubmitting ? (
+                              "Submitting..."
+                            ) : (
+                              <>
+                                Request Fare Estimate
+                                <Send className="ml-2 h-5 w-5" />
+                              </>
+                            )}
+                          </Button>
+                        </div>
+                      </form>
+                    </motion.div>
+                  )}
+                </>
+              )}
+            </AnimatePresence>
+          </div>
+        </div>
+
+        {/* Bottom info banner */}
         <div className="mt-20 bg-primary rounded-[3rem] p-12 text-white relative overflow-hidden">
           <div className="absolute top-0 right-0 w-96 h-96 bg-secondary/15 rounded-full -mr-48 -mt-48 blur-3xl pointer-events-none" />
           <div className="relative z-10 grid md:grid-cols-3 gap-12 items-center">
             <div className="md:col-span-2">
-              <h4 className="text-3xl font-black mb-4">Need a Custom Package?</h4>
+              <h4 className="text-3xl font-black mb-4">Need an Instant Answer?</h4>
               <p className="text-white/65 font-medium text-lg leading-relaxed">
-                We offer tailored solutions for monthly driver packages, full-day rentals,
-                and corporate accounts. Contact us for a personalised quote.
+                Call us directly for immediate assistance. We&apos;re available 24/7 for
+                bookings, inquiries, and custom packages.
               </p>
             </div>
             <div className="flex flex-col gap-4">
               <div className="bg-white/10 p-5 rounded-2xl border border-white/15 backdrop-blur-sm">
-                <p className="text-[10px] uppercase tracking-widest text-white/50 mb-1 font-black">Monthly Driver Package</p>
-                <p className="text-2xl font-black text-secondary">₹25,000 – ₹30,000</p>
+                <p className="text-[10px] uppercase tracking-widest text-white/50 mb-1 font-black">
+                  Call or WhatsApp
+                </p>
+                <p className="text-2xl font-black text-secondary">
+                  <a href="tel:7995581545">7995581545</a>
+                </p>
               </div>
               <p className="text-[10px] uppercase tracking-widest text-white/40 font-black italic">
-                * Driver Allowance ₹500 · After 10 PM ₹300 · Toll, State &amp; Parking Extra
+                Also reachable at 7416910367
               </p>
             </div>
           </div>
