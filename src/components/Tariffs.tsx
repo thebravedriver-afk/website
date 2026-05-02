@@ -1,12 +1,11 @@
 "use client";
 
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowRight, CheckCircle2, Send, ChevronLeft, Car, MapPin, Calendar, Clock, Phone, Mail, User } from "lucide-react";
+import { ArrowRight, Send, ChevronLeft, Car, MapPin, Calendar, Clock, Phone, Mail, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useState } from "react";
-import Image from "next/image";
 
 const vehicleCategories = [
   { value: "All Sedan", label: "All Sedan", seats: 4 },
@@ -29,7 +28,6 @@ export default function Tariffs() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
 
-  // Step 1: Trip details
   const [tripDetails, setTripDetails] = useState({
     vehicleCategory: "",
     tripType: "",
@@ -40,7 +38,6 @@ export default function Tariffs() {
     passengers: "1",
   });
 
-  // Step 2: Contact info
   const [contactInfo, setContactInfo] = useState({
     name: "",
     email: "",
@@ -142,10 +139,12 @@ export default function Tariffs() {
 
   return (
     <section id="tariffs" className="py-24 bg-muted/20 relative overflow-hidden">
-      <div className="absolute top-0 left-0 w-full h-64 bg-black pointer-events-none" />
+      {/* Dark hero area — tall enough to cover heading + step indicator */}
+      <div className="absolute top-0 left-0 w-full h-[340px] bg-black pointer-events-none" />
 
       <div className="container relative z-10 mx-auto px-4">
-        <div className="text-center max-w-3xl mx-auto mb-20 pt-8">
+        {/* ====== HEADER + STEP INDICATOR (on dark bg) ====== */}
+        <div className="text-center max-w-3xl mx-auto mb-16 pt-8">
           <motion.span
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
@@ -158,7 +157,7 @@ export default function Tariffs() {
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-5xl md:text-7xl font-black mb-8 tracking-tight text-white"
+            className="text-5xl md:text-7xl font-black mb-6 tracking-tight text-white"
           >
             Get <span className="text-secondary">Your</span> Fare Estimate
           </motion.h2>
@@ -169,75 +168,75 @@ export default function Tariffs() {
             transition={{ delay: 0.2 }}
             className="text-white/60 text-xl font-medium"
           >
-            Tell us about your trip and we{"'"}ll get back to you with the best prices.
+            Tell us about your trip and we&apos;ll get back to you with the best prices.
           </motion.p>
-        </div>
 
-        {/* Steps Indicator */}
-        <div className="max-w-2xl mx-auto mb-12">
-          <div className="flex items-center justify-center gap-4">
-            <div className="flex items-center gap-2">
-              <div
-                className={`h-10 w-10 rounded-full flex items-center justify-center text-sm font-black transition-all duration-500 ${
-                  step >= 1 ? "bg-secondary text-black" : "bg-white/20 text-white/40"
-                }`}
-              >
-                1
+          {/* Steps Indicator — inside same dark area */}
+          <div className="mt-10">
+            <div className="flex items-center justify-center gap-4">
+              <div className="flex items-center gap-2">
+                <div
+                  className={`h-10 w-10 rounded-full flex items-center justify-center text-sm font-black transition-all duration-500 ${
+                    step >= 1 ? "bg-secondary text-black" : "bg-white/15 text-white/50"
+                  }`}
+                >
+                  1
+                </div>
+                <span
+                  className={`text-sm font-bold hidden sm:inline transition-colors ${
+                    step >= 1 ? "text-white" : "text-white/40"
+                  }`}
+                >
+                  Trip Details
+                </span>
               </div>
-              <span
-                className={`text-sm font-bold hidden sm:inline transition-colors ${
-                  step >= 1 ? "text-white" : "text-white/40"
-                }`}
-              >
-                Trip Details
-              </span>
-            </div>
-            <div
-              className={`h-0.5 w-16 transition-colors duration-500 ${
-                step >= 2 ? "bg-secondary" : "bg-white/20"
-              }`}
-            />
-            <div className="flex items-center gap-2">
               <div
-                className={`h-10 w-10 rounded-full flex items-center justify-center text-sm font-black transition-all duration-500 ${
-                  step >= 2 ? "bg-secondary text-black" : "bg-white/20 text-white/40"
+                className={`h-0.5 w-16 transition-colors duration-500 ${
+                  step >= 2 ? "bg-secondary" : "bg-white/20"
                 }`}
-              >
-                2
+              />
+              <div className="flex items-center gap-2">
+                <div
+                  className={`h-10 w-10 rounded-full flex items-center justify-center text-sm font-black transition-all duration-500 ${
+                    step >= 2 ? "bg-secondary text-black" : "bg-white/15 text-white/50"
+                  }`}
+                >
+                  2
+                </div>
+                <span
+                  className={`text-sm font-bold hidden sm:inline transition-colors ${
+                    step >= 2 ? "text-white" : "text-white/40"
+                  }`}
+                >
+                  Contact Info
+                </span>
               </div>
-              <span
-                className={`text-sm font-bold hidden sm:inline transition-colors ${
-                  step >= 2 ? "text-white" : "text-white/40"
-                }`}
-              >
-                Contact Info
-              </span>
-            </div>
-            <div
-              className={`h-0.5 w-16 transition-colors duration-500 ${
-                step >= 3 ? "bg-secondary" : "bg-white/20"
-              }`}
-            />
-            <div className="flex items-center gap-2">
               <div
-                className={`h-10 w-10 rounded-full flex items-center justify-center text-sm font-black transition-all duration-500 ${
-                  step >= 3 ? "bg-secondary text-black" : "bg-white/20 text-white/40"
+                className={`h-0.5 w-16 transition-colors duration-500 ${
+                  step >= 3 ? "bg-secondary" : "bg-white/20"
                 }`}
-              >
-                ✓
+              />
+              <div className="flex items-center gap-2">
+                <div
+                  className={`h-10 w-10 rounded-full flex items-center justify-center text-sm font-black transition-all duration-500 ${
+                    step >= 3 ? "bg-secondary text-black" : "bg-white/15 text-white/50"
+                  }`}
+                >
+                  ✓
+                </div>
+                <span
+                  className={`text-sm font-bold hidden sm:inline transition-colors ${
+                    step >= 3 ? "text-white" : "text-white/40"
+                  }`}
+                >
+                  Done
+                </span>
               </div>
-              <span
-                className={`text-sm font-bold hidden sm:inline transition-colors ${
-                  step >= 3 ? "text-white" : "text-white/40"
-                }`}
-              >
-                Done
-              </span>
             </div>
           </div>
         </div>
 
-        {/* Form Card */}
+        {/* ====== FORM CARD ====== */}
         <div className="max-w-2xl mx-auto">
           <div className="bg-white rounded-[3rem] shadow-[0_30px_100px_rgba(0,0,0,0.1)] overflow-hidden border border-black/5">
             <AnimatePresence mode="wait">
@@ -280,7 +279,7 @@ export default function Tariffs() {
                       Back to Home
                     </Button>
                   </div>
-                  <div className="mt-10 pt-8 border-t border-border w-full max-w-sm">
+                  <div className="mt-10 pt-8 border-t w-full max-w-sm">
                     <p className="text-sm text-muted-foreground mb-3 font-medium">
                       Meanwhile, reach us directly:
                     </p>
@@ -331,7 +330,7 @@ export default function Tariffs() {
                                 className={`p-4 rounded-2xl border-2 text-center transition-all duration-200 ${
                                   tripDetails.vehicleCategory === v.value
                                     ? "border-secondary bg-secondary/5 shadow-sm"
-                                    : "border-border hover:border-primary/30 bg-muted/20"
+                                    : "border-input bg-background hover:border-primary/40"
                                 }`}
                               >
                                 <p className="font-extrabold text-sm text-foreground">{v.label}</p>
@@ -355,7 +354,7 @@ export default function Tariffs() {
                                 className={`p-3 rounded-2xl border-2 text-center transition-all duration-200 ${
                                   tripDetails.tripType === t.value
                                     ? "border-secondary bg-secondary/5 shadow-sm"
-                                    : "border-border hover:border-primary/30 bg-muted/20"
+                                    : "border-input bg-background hover:border-primary/40"
                                 }`}
                               >
                                 <p className="font-bold text-xs text-foreground">{t.label}</p>
@@ -377,7 +376,6 @@ export default function Tariffs() {
                               onChange={(e) => updateTripDetail("pickupLocation", e.target.value)}
                               placeholder="e.g. Vijayawada"
                               required
-                              className="bg-muted/20 border-2"
                             />
                           </div>
                           <div className="space-y-2">
@@ -390,7 +388,6 @@ export default function Tariffs() {
                               value={tripDetails.dropLocation}
                               onChange={(e) => updateTripDetail("dropLocation", e.target.value)}
                               placeholder="e.g. Hyderabad (optional)"
-                              className="bg-muted/20 border-2"
                             />
                           </div>
                         </div>
@@ -407,7 +404,6 @@ export default function Tariffs() {
                               type="date"
                               value={tripDetails.travelDate}
                               onChange={(e) => updateTripDetail("travelDate", e.target.value)}
-                              className="bg-muted/20 border-2"
                             />
                           </div>
                           <div className="space-y-2">
@@ -420,7 +416,6 @@ export default function Tariffs() {
                               value={tripDetails.duration}
                               onChange={(e) => updateTripDetail("duration", e.target.value)}
                               placeholder="e.g. Full day, 2 days, Weekly"
-                              className="bg-muted/20 border-2"
                             />
                           </div>
                         </div>
@@ -438,12 +433,10 @@ export default function Tariffs() {
                             max="12"
                             value={tripDetails.passengers}
                             onChange={(e) => updateTripDetail("passengers", e.target.value)}
-                            className="bg-muted/20 border-2"
                           />
                         </div>
                       </div>
 
-                      {/* Actions */}
                       <div className="flex justify-end mt-10">
                         <Button
                           onClick={() => setStep(2)}
@@ -482,7 +475,7 @@ export default function Tariffs() {
                       </div>
 
                       {/* Summary chip */}
-                      <div className="bg-muted/30 rounded-2xl p-4 mb-8 border border-border">
+                      <div className="bg-muted/20 rounded-2xl p-4 mb-8 border">
                         <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2">
                           Your Selection
                         </p>
@@ -508,7 +501,6 @@ export default function Tariffs() {
                               onChange={(e) => updateContactInfo("name", e.target.value)}
                               placeholder="Your name"
                               required
-                              className="bg-muted/20 border-2"
                             />
                           </div>
                           <div className="space-y-2">
@@ -522,7 +514,6 @@ export default function Tariffs() {
                               value={contactInfo.email}
                               onChange={(e) => updateContactInfo("email", e.target.value)}
                               placeholder="email@example.com"
-                              className="bg-muted/20 border-2"
                             />
                           </div>
                         </div>
@@ -538,7 +529,6 @@ export default function Tariffs() {
                             onChange={(e) => updateContactInfo("phone", e.target.value)}
                             placeholder="+91 00000 00000"
                             required
-                            className="bg-muted/20 border-2"
                           />
                         </div>
                         <div className="space-y-2">
@@ -551,11 +541,10 @@ export default function Tariffs() {
                             value={contactInfo.notes}
                             onChange={(e) => updateContactInfo("notes", e.target.value)}
                             placeholder="Any special requests or preferences..."
-                            className="flex min-h-[80px] w-full rounded-2xl border-2 border-border bg-muted/20 px-4 py-3 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                            className="flex min-h-[80px] w-full rounded-2xl border border-input bg-background px-4 py-3 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                           />
                         </div>
 
-                        {/* Actions */}
                         <div className="flex flex-col-reverse sm:flex-row gap-4 pt-4">
                           <Button
                             type="button"
@@ -590,7 +579,7 @@ export default function Tariffs() {
           </div>
         </div>
 
-        {/* Bottom info banner */}
+        {/* ====== BOTTOM BANNER ====== */}
         <div className="mt-20 bg-primary rounded-[3rem] p-12 text-white relative overflow-hidden">
           <div className="absolute top-0 right-0 w-96 h-96 bg-secondary/15 rounded-full -mr-48 -mt-48 blur-3xl pointer-events-none" />
           <div className="relative z-10 grid md:grid-cols-3 gap-12 items-center">
